@@ -5,6 +5,6 @@ const counter = useCounterStore()
 </script>
 
 <template>
-  <button @click="counter.increment">Increment</button>
-  <button @click="counter.decrement">Decrement</button>
+  <button class="btn btn-primary" @click="counter.increment">Increment</button>
+  <button class="btn btn-primary" @click="counter.decrement">Decrement</button>
 </template>
