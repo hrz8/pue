@@ -15,6 +15,9 @@ type ContentfulResponse[T any, U any, V any] struct {
 	Limit int `json:"limit,omitempty"`
 	Items []struct {
 		Fields T `json:"fields,omitempty"`
+		Sys    struct {
+			ID string `json:"id"`
+		} `json:"sys,omitempty"`
 	} `json:"items,omitempty"`
 	Includes Include[U, V] `json:"includes,omitempty"`
 }
@@ -102,6 +105,7 @@ type Include[T any, U any] struct {
 }
 
 type Room struct {
+	ID          string   `json:"id,omitempty"`
 	RoomType    string   `json:"roomType,omitempty"`
 	Hotel       Hotel    `json:"hotel,omitempty"`
 	Brand       Brand    `json:"brand,omitempty"`
@@ -146,13 +150,14 @@ func NewContentful() *Contentful {
 	}
 }
 
-func (c *Contentful) FetchRoomsByHotelID(hotelID string) ([]byte, error) {
-	if cache, exists := c.cache[hotelID]; exists {
+func (c *Contentful) FetchRoomsByHotelID(hotelID, lang string) ([]byte, error) {
+	cacheKey := hotelID + ":" + lang
+	if cache, exists := c.cache[cacheKey]; exists {
 		return cache, nil
 	}
 
 	var body []byte
-	url := fmt.Sprintf("%s/spaces/%s/environments/%s/entries?content_type=room&select=fields&locale=%s&include=10&fields.hotel.sys.id=%s", ContentfulBaseURL, SpaceID, EnvID, Lang, hotelID)
+	url := fmt.Sprintf("%s/spaces/%s/environments/%s/entries?content_type=room&select=fields,sys.id&locale=%s&include=10&fields.hotel.sys.id=%s", ContentfulBaseURL, SpaceID, EnvID, lang, hotelID)
 	req, err := http.NewRequest("GET", url, nil)
 	if err != nil {
 		return body, fmt.Errorf("Error creating request: %v", err)
@@ -171,12 +176,12 @@ func (c *Contentful) FetchRoomsByHotelID(hotelID string) ([]byte, error) {
 		return body, fmt.Errorf("Error reading response: %v", err)
 	}
 
-	c.cache[hotelID] = body
+	c.cache[cacheKey] = body
 	return body, nil
 }
 
 func (c *Contentful) ConvertRawToRoom(raw []byte) ([]Room, error) {
-	var rooms []Room
+	rooms := make([]Room, 0)
 
 	var rawResp ContentfulResponse[RoomField, ReferenceField, AssetImage]
 	if err := json.Unmarshal(raw, &rawResp); err != nil {
@@ -225,14 +230,15 @@ func (c *Contentful) ConvertRawToRoom(raw []byte) ([]Room, error) {
 			continue
 		}
 
-		var imageUrls []string
+		imageUrls := make([]string, 0)
 		for _, image := range room.Fields.Images {
 			if url, ok := assetMap[image.Sys.ID]; ok {
-				imageUrls = append(imageUrls, url)
+				imageUrls = append(imageUrls, "https:"+url)
 			}
 		}
 
 		rooms = append(rooms, Room{
+			ID:          room.Sys.ID,
 			RoomType:    room.Fields.RoomType,
 			Hotel:       hotelData,
 			Brand:       hotelData.Brand,

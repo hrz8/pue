@@ -9,8 +9,10 @@ import (
 
 func roomsHandler(cf *contentful.Contentful) func(c *gin.Context) {
 	return func(c *gin.Context) {
+		lang := c.DefaultQuery("lang", "en-US")
 		hotelID := c.Param("hotelID")
-		b, err := cf.FetchRoomsByHotelID(hotelID)
+
+		b, err := cf.FetchRoomsByHotelID(hotelID, lang)
 		if err != nil {
 			c.Error(err)
 			return
@@ -34,7 +36,7 @@ func main() {
 	r := gin.Default()
 
 	r.Use(static.Serve("/", static.LocalFile("./web/dist", true)))
-	r.GET("/hotels/:hotelID/rooms", roomsHandler(cf))
+	r.GET("/api/hotels/:hotelID/rooms", roomsHandler(cf))
 	r.NoRoute(func(c *gin.Context) {
 		c.File("./web/dist/index.html")
 	})

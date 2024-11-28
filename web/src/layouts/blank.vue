@@ -1,5 +1,6 @@
 <script  setup lang="ts">
 import { onMounted } from 'vue'
+import LangSwitcher from '../components/LangSwitcher.vue'
 
 onMounted(() => {
   console.log('layouts/blank')
@@ -7,6 +8,9 @@ onMounted(() => {
 </script>
 
 <template>
-  <h1>BLANK</h1>
+  <div class="container my-5">
+    <RouterLink to="/" class="btn btn-primary">Home</RouterLink>
+    <LangSwitcher/>
+  </div>
   <RouterView />
 </template>

@@ -1,6 +1,7 @@
 import type { IHttpClient } from './httpClient';
 
 export type Room = {
+  id: string
   roomType: string
   hotel: Hotel
   brand: Brand
@@ -44,8 +45,11 @@ export type Price = {
 export class CatalogueService {
   constructor(private readonly httpClient: IHttpClient) {}
 
-  async listRooms(hotelId: string): Promise<{rooms: Room[]}> {
-    const response = await this.httpClient.get<{rooms: Room[]}>(`/hotels/${hotelId}/rooms`);
+  async listRooms(hotelId: string, lang = 'en-US'): Promise<{rooms: Room[]}> {
+    if (hotelId === '') {
+      return {rooms: []}
+    }
+    const response = await this.httpClient.get<{rooms: Room[]}>(`/api/hotels/${hotelId}/rooms?lang=${lang}`);
     return response.data;
   }
 }
