@@ -1,0 +1,6 @@
+{
+  "scripts": {
+    "setup": "yarn --cwd web install",
+    "build": "yarn --cwd web build"
+  }
+}

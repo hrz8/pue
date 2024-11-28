@@ -137,14 +137,20 @@ type Hotel struct {
 }
 
 type Contentful struct {
-	cache map[string][]Room
+	cache map[string][]byte
 }
 
 func NewContentful() *Contentful {
-	return &Contentful{}
+	return &Contentful{
+		cache: make(map[string][]byte),
+	}
 }
 
 func (c *Contentful) FetchRoomsByHotelID(hotelID string) ([]byte, error) {
+	if cache, exists := c.cache[hotelID]; exists {
+		return cache, nil
+	}
+
 	var body []byte
 	url := fmt.Sprintf("%s/spaces/%s/environments/%s/entries?content_type=room&select=fields&locale=%s&include=10&fields.hotel.sys.id=%s", ContentfulBaseURL, SpaceID, EnvID, Lang, hotelID)
 	req, err := http.NewRequest("GET", url, nil)
@@ -165,6 +171,7 @@ func (c *Contentful) FetchRoomsByHotelID(hotelID string) ([]byte, error) {
 		return body, fmt.Errorf("Error reading response: %v", err)
 	}
 
+	c.cache[hotelID] = body
 	return body, nil
 }
 

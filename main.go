@@ -35,6 +35,9 @@ func main() {
 
 	r.Use(static.Serve("/", static.LocalFile("./web/dist", true)))
 	r.GET("/hotels/:hotelID/rooms", roomsHandler(cf))
+	r.NoRoute(func(c *gin.Context) {
+		c.File("./web/dist/index.html")
+	})
 
 	r.Run()
 }
