@@ -1,7 +1,13 @@
 <script setup lang="ts">
+import { onMounted } from 'vue'
+
 import WelcomeItem from '../components/WelcomeItem.vue'
 import DocumentationIcon from '../components/icons/IconDocumentation.vue'
 import SupportIcon from '../components/icons/IconSupport.vue'
+
+onMounted(() => {
+  console.log('Halo')
+})
 </script>
 
 <template>
@@ -23,5 +29,3 @@ import SupportIcon from '../components/icons/IconSupport.vue'
     </WelcomeItem>
   </main>
 </template>
-
-<script setup lang="ts"></script>

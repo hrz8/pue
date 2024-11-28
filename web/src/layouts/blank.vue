@@ -1,11 +1,12 @@
-<script setup lang="ts">
+<script  setup lang="ts">
 import { onMounted } from 'vue'
 
 onMounted(() => {
-  console.log('App.vue')
+  console.log('layouts/blank')
 })
 </script>
 
 <template>
+  <h1>BLANK</h1>
   <RouterView />
 </template>
